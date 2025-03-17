@@ -12,12 +12,14 @@ function ShoppingCart() {
           Shopping Cart
         </h2>
 
+        {/* Show message if the cart is empty */}
         {cartItems.length === 0 ? (
           <p className="text-lg text-center text-gray-600">
             Your cart is empty.
           </p>
         ) : (
           <ul className="space-y-4">
+            {/* Loop through cart items and display each */}
             {cartItems.map((item) => (
               <li
                 key={item.id}
