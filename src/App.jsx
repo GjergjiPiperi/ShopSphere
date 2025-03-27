@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import {
   NavLink,
-  Route,
   BrowserRouter as Router,
   Routes,
+  Route,
 } from "react-router-dom";
 import { CartProvider } from "./CartContext";
 import About from "./components/About";
@@ -15,13 +15,13 @@ function App() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Fetching data with caching
   async function fetchProductsData() {
     try {
       const cachedProducts = localStorage.getItem("cachedProducts");
       if (cachedProducts) {
-        setProducts(JSON.parse(cachedProducts)); // ✅ Load from cache
+        setProducts(JSON.parse(cachedProducts));
         return;
       }
 
@@ -29,10 +29,9 @@ function App() {
       if (!response.ok) {
         throw new Error("Product not found.");
       }
-
       const data = await response.json();
       setProducts(data);
-      localStorage.setItem("cachedProducts", JSON.stringify(data)); // ✅ Store in cache
+      localStorage.setItem("cachedProducts", JSON.stringify(data));
       setError("");
     } catch (err) {
       setError(err.message);
@@ -44,75 +43,130 @@ function App() {
     fetchProductsData();
   }, []);
 
-  // Filter products based on search term
   const filteredProducts = products.filter((product) =>
     product.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <CartProvider>
-      {/* ✅ Pass products to chatbot to avoid multiple API calls */}
-      <MyChatBot products={products} />
       <Router>
-        <div className="p-4 pt-16">
+        <MyChatBot products={products} />
+        <div className="pt-20">
           {/* Navbar */}
-          <nav className="fixed top-0 z-10 flex items-center justify-between w-full p-2 px-6 bg-gray-200 rounded-md shadow-md">
-            {/* Left Side - Navigation Links */}
-            <div className="flex items-center space-x-4">
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  `px-4 py-2 font-bold ${
-                    isActive ? "bg-blue-500 text-white" : "text-black"
-                  } rounded-md`
-                }
-                end
-              >
-                Home
+          <nav className="fixed top-0 left-0 z-50 w-full bg-gray-200 shadow-md">
+            <div className="container flex items-center justify-between p-4 mx-auto">
+              {/* Left: Logo */}
+              <NavLink to="/" className="text-xl font-bold text-black">
+                ShopSphere
               </NavLink>
-              <NavLink
-                to="/about"
-                className={({ isActive }) =>
-                  `px-4 py-2 font-bold ${
-                    isActive ? "bg-blue-500 text-white" : "text-black"
-                  } rounded-md`
-                }
-              >
-                About
-              </NavLink>
-            </div>
-
-            {/* Right Side - Search Bar + Cart Icon */}
-            <div className="flex items-center space-x-4">
-              {/* Search Bar */}
-              <div className="flex items-center overflow-hidden bg-white rounded-md shadow-sm">
-                <input
-                  type="text"
-                  placeholder="Search Products..."
-                  className="px-4 py-2 outline-none"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+              {/* Desktop Menu */}
+              <div className="items-center hidden space-x-4 md:flex">
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) =>
+                    `px-4 py-2 rounded-md font-bold ${
+                      isActive ? "bg-blue-500 text-white" : "text-black"
+                    }`
+                  }
+                >
+                  Home
+                </NavLink>
+                <NavLink
+                  to="/about"
+                  className={({ isActive }) =>
+                    `px-4 py-2 rounded-md font-bold ${
+                      isActive ? "bg-blue-500 text-white" : "text-black"
+                    }`
+                  }
+                >
+                  About
+                </NavLink>
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    placeholder="Search Products..."
+                    className="px-3 py-2 border rounded-md outline-none"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <NavLink to="/cart" className="p-2">
+                  <img
+                    src="/images/shoppingcart.png"
+                    alt="Cart Icon"
+                    className="object-cover w-10 h-10 rounded-full"
+                  />
+                </NavLink>
               </div>
-
-              {/* Cart Icon */}
-              <NavLink to="/cart" className="flex items-center p-2">
-                <img
-                  src="/images/shoppingcart.png"
-                  alt="Cart Icon"
-                  className="object-cover w-10 h-10 rounded-full"
-                />
-              </NavLink>
+              {/* Mobile Hamburger */}
+              <button
+                className="p-2 md:hidden focus:outline-none"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                <span className="text-2xl">☰</span>
+              </button>
             </div>
+            {/* Mobile Menu */}
+            {isMobileMenuOpen && (
+              <div className="bg-gray-200 shadow-md md:hidden">
+                <div className="container flex flex-col p-4 mx-auto space-y-2">
+                  <NavLink
+                    to="/"
+                    end
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `px-4 py-2 rounded-md font-bold ${
+                        isActive ? "bg-blue-500 text-white" : "text-black"
+                      }`
+                    }
+                  >
+                    Home
+                  </NavLink>
+                  <NavLink
+                    to="/about"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `px-4 py-2 rounded-md font-bold ${
+                        isActive ? "bg-blue-500 text-white" : "text-black"
+                      }`
+                    }
+                  >
+                    About
+                  </NavLink>
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      placeholder="Search Products..."
+                      className="w-full px-3 py-2 border rounded-md outline-none"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <NavLink
+                    to="/cart"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2"
+                  >
+                    <img
+                      src="/images/shoppingcart.png"
+                      alt="Cart Icon"
+                      className="object-cover w-10 h-10 rounded-full"
+                    />
+                  </NavLink>
+                </div>
+              </div>
+            )}
           </nav>
-          {/* Error message (if any) */}
-          {error && <p className="mt-4 font-bold text-red-500">{error}</p>}
-          {/* Routes */}
-          <Routes>
-            <Route path="/" element={<Home products={filteredProducts} />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/cart" element={<ShoppingCart />} />
-          </Routes>
+          {/* Main Content */}
+          <div className="container p-4 mx-auto">
+            {error && <p className="mt-4 font-bold text-red-500">{error}</p>}
+            <Routes>
+              <Route path="/" element={<Home products={filteredProducts} />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/cart" element={<ShoppingCart />} />
+            </Routes>
+          </div>
         </div>
       </Router>
     </CartProvider>
